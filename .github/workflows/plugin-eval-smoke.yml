@@ -38,11 +38,10 @@ jobs:
         run: |
           set -euo pipefail
           CLI=/tmp/openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js
-          node "$CLI" init-benchmark "skills/$SKILL"
-          node "$CLI" benchmark "skills/$SKILL" --dry-run | tee plugin-eval-dry-run.log
+          python3 scripts/build_plugin_eval_benchmark.py --output plugin-eval-evidence/benchmark.json --model "$MODEL"\n          python3 scripts/test_plugin_eval_config.py\n          node "$CLI" analyze "skills/$SKILL" --format json --output plugin-eval-evidence/static-analysis.json\n          printf "Live Codex benchmark NOT RUN; upstream CLI v2 does not support --dry-run.\\n" > plugin-eval-dry-run.log
           mkdir -p plugin-eval-evidence
           cp plugin-eval-dry-run.log plugin-eval-evidence/
-          cp .plugin-eval/benchmark.json plugin-eval-evidence/benchmark-starter.json
+          cp plugin-eval-evidence/benchmark.json plugin-eval-evidence/benchmark-starter.json
           printf 'status=DRY_RUN_ONLY\nrepo_commit=%s\nupstream_commit=%s\nskill=%s\nmodel=%s\nlive_agent=NOT_RUN\nactual_tool_traces=NOT_RUN\ncost=NOT_MEASURED\n' \
             "$GITHUB_SHA" '0722921d5542fc593105c27bd52630babd8b8c2a' "$SKILL" "$MODEL" > plugin-eval-evidence/provenance.txt
       - uses: actions/upload-artifact@v4
