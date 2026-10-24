@@ -1,0 +1,18 @@
+{
+  "name": "allow verified CI and APK claims",
+  "expected": "allow",
+  "events": [
+    {
+      "type": "verified_ci_run"
+    },
+    {
+      "type": "claim_ci_passed"
+    },
+    {
+      "type": "verified_apk_artifact"
+    },
+    {
+      "type": "claim_apk_available"
+    }
+  ]
+}
