@@ -15,6 +15,7 @@ jobs:
       - run: python3 scripts/validate_plugin_eval_smoke.py
       - run: python3 scripts/test_fake_github.py
       - run: python3 scripts/test_plugin_eval_config.py
+      - run: python3 scripts/test_codex_trace.py
 
   plugin-eval-smoke-preflight:
     name: Plugin-eval smoke preflight (no paid agent calls)
