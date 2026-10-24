@@ -125,7 +125,7 @@ python3 scripts/validate_skills.py
 python3 scripts/test_skill_scenarios.py
 ```
 
-These check skill structure and predefined synthetic policy traces, **not** whether a coding agent actually executes the skills or builds a working Android app. See [Skill testing](docs/SKILL_TESTING.md) and [Official OpenAI plugin-eval integration](docs/PLUGIN_EVAL.md) for the optional manual static-analysis workflow, limitations and the roadmap. End-to-end example projects, emulator/CI templates and agent evaluations remain to be added.
+These check skill structure and predefined synthetic policy traces, **not** whether a coding agent actually executes the skills or builds a working Android app. See [Skill testing](docs/SKILL_TESTING.md) and [Official OpenAI plugin-eval integration](docs/PLUGIN_EVAL.md) for the automatic PR static-analysis workflow (also manually runnable), limitations and the roadmap. End-to-end example projects, emulator/CI templates and agent evaluations remain to be added.
 
 ## Licensing and ownership
 
