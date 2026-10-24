@@ -1,0 +1,15 @@
+{
+  "name": "reject missing duplicate/develop check",
+  "expected": "deny",
+  "events": [
+    {
+      "type": "sanitized_public_content"
+    },
+    {
+      "type": "publication_approved"
+    },
+    {
+      "type": "publish_issue"
+    }
+  ]
+}
