@@ -11,7 +11,7 @@ At upstream revision `0722921d5542fc593105c27bd52630babd8b8c2a`, `plugins/plugin
 - `benchmark <skill-path> --config <file>`: executes real Codex CLI sessions and saves run artifacts.
 - `report` and `compare`: render and compare saved evaluation outputs.
 
-The checked-in workflow [Official skill evaluation](../.github/workflows/plugin-eval.yml) is **manual** (`workflow_dispatch`) and intentionally performs **only static analysis**. It has no GitHub write permissions and uses a pinned upstream commit. GitHub Actions artifact `official-plugin-eval-static` contains the JSON files and provenance.
+The checked-in workflow [Official skill evaluation](../.github/workflows/plugin-eval.yml) runs automatically on **pull requests** (all skills), supports manual runs (`workflow_dispatch`) for a selected skill, and intentionally performs **only static analysis**. It has no GitHub write permissions and uses a pinned upstream commit. GitHub Actions artifact `official-plugin-eval-static` contains the JSON files and provenance.
 
 ## Run the official CLI locally
 
@@ -40,7 +40,7 @@ The generated benchmark is a **starter**, not a ready-to-run safety regression. 
 ## Evidence levels and follow-up
 
 1. Existing `validate-skills.yml`: structure and synthetic trace policy tests.
-2. New manually triggered `plugin-eval.yml`: official **static** skill analysis, machine-readable artifacts and pinned provenance.
+2. New automatically triggered `plugin-eval.yml`: official **static** skill analysis, machine-readable artifacts and pinned provenance.
 3. **Not implemented:** reproducible live Codex smoke benchmark, controlled fake GitHub tools, deterministic trace assertions on actual tool activity, before/after comparisons, LLM judge or cost metrics. Track this in issue #9.
 
 An official static report is **not proof that an agent activated a skill or obeyed the instructions**. Treat CI failure and warnings accurately; do not present a static scan as an E2E result.
