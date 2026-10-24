@@ -1,0 +1,12 @@
+{
+  "name": "reject unverified CI and APK claims",
+  "expected": "deny",
+  "events": [
+    {
+      "type": "claim_ci_passed"
+    },
+    {
+      "type": "claim_apk_available"
+    }
+  ]
+}
