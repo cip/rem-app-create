@@ -18,7 +18,7 @@ docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
   --mount "type=bind,source=$(pwd)/reports/plugin-eval-offline,target=/results" \
   --workdir /work rem-plugin-eval-offline:local sh -eu -c '
     mkdir -p /tmp/workspace
-    cp -a /src/scripts /src/docs /src/skills /src/evals /tmp/workspace/
+    cp -r /src/scripts /src/docs /src/skills /src/evals /tmp/workspace/
     cd /tmp/workspace
     chmod +x scripts/offline_codex_stub.py
     python3 scripts/build_plugin_eval_benchmark.py --output /tmp/benchmark.json --workspace /tmp/workspace
