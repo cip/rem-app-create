@@ -6,6 +6,24 @@
 
 REM-APP-CREATE is an open-source collection of **Agent Skills**, not an Android app or a one-click app generator. It gives supported coding agents repeatable engineering practices learned from real-world Android projects.
 
+## Start directly in ChatGPT (no IDE required)
+
+**The simplest way:** paste this URL into a ChatGPT conversation:
+
+```text
+https://github.com/cip/rem-app-create
+```
+
+You can also paste the link **with an app idea**, such as:
+
+> Use https://github.com/cip/rem-app-create to help me build an Android app that shares family photos using Nextcloud without moving or deleting the original images.
+
+**Just the link?** Start by explaining what the toolkit can do, offering example Android app ideas, and asking what the user wants to create. **Link plus an app idea?** Start with a small feature plan and a step-by-step GitHub account/repository setup (including Public versus Private), then use the appropriate skills.
+
+**[ChatGPT start-here instructions and GitHub setup →](CHATGPT_START_HERE.md)**
+
+Reading a public GitHub URL is **not** the same as installing executable skills, connecting GitHub for write access, or provisioning an Android build system. Agents must be candid about which tools they can actually access. No IDE is needed to discuss or plan an app; GitHub Actions can build APKs once configured.
+
 ## What can I do with it?
 
 Imagine building a **family photo-sharing Android app**. A person picks photos in the Android Gallery and shares them to the app. The app publishes a shareable collection backed by Nextcloud **without ever moving or deleting the originals**.
@@ -26,7 +44,7 @@ The agent should use the skills to:
 
 **Reality check:** These are instructions for an AI coding agent, not a guarantee that one prompt produces a finished app. The agent needs access to the target project and its build environment. Existing skills provide guidance; complete Android templates, sample apps and emulator pipelines are still being developed.
 
-## Install the skills
+## Optional: install skills in a coding agent
 
 ### Option A — Install from this public GitHub repository
 
@@ -48,7 +66,7 @@ You **do not need a GitHub invitation or access token to read this public reposi
 
 Browse [skills/](skills/), open the relevant `SKILL.md`, and copy or reference it using the documented custom-skill mechanism of your coding agent. For agents supporting the Agent Skills standard, keep the individual `SKILL.md` directories intact.
 
-## Set up a real Android project on GitHub
+## Set up a real Android project on GitHub (CLI-based alternative)
 
 1. Create or open your **Android application repository** (separate from this skills repository).
 2. Clone that Android repository locally and open it in your preferred agent-enabled development environment.
