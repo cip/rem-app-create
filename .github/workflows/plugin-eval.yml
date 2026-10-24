@@ -1,5 +1,6 @@
 name: Official skill evaluation
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       skill:
@@ -38,7 +39,7 @@ jobs:
           node-version: '22'
       - name: Evaluate selected skills
         env:
-          SELECTED_SKILL: ${{ inputs.skill }}
+          SELECTED_SKILL: ${{ inputs.skill || 'all' }}
         run: |
           set -euo pipefail
           mkdir -p reports/plugin-eval
