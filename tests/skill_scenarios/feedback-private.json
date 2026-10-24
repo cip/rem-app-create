@@ -1,0 +1,28 @@
+{
+  "name": "reject private issue contents",
+  "expected": "deny",
+  "events": [
+    {
+      "type": "searched_open_issues"
+    },
+    {
+      "type": "searched_closed_issues"
+    },
+    {
+      "type": "checked_main"
+    },
+    {
+      "type": "checked_develop"
+    },
+    {
+      "type": "sanitized_public_content"
+    },
+    {
+      "type": "publication_approved"
+    },
+    {
+      "type": "publish_issue",
+      "contains_private_data": true
+    }
+  ]
+}
