@@ -2,6 +2,8 @@ name: Validate skills
 on:
   push:
   pull_request:
+permissions:
+  contents: read
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -10,4 +12,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python3 scripts/validate_skills.py
+      - name: Validate skill structure
+        run: python3 scripts/validate_skills.py
+      - name: Test Android versioning contracts
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
