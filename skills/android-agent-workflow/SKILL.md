@@ -13,3 +13,7 @@ description: Coordinate Android development agents, issue-to-PR delivery and evi
 7. Never autonomously merge without user approval; do not run paid provider calls without opt-in.
 
 Treat agents' conclusions as hypotheses until supported by executable or observed evidence.
+
+## Repository policy is not inherited from REM-APP-CREATE
+
+This skill describes useful practices, not a mandatory Git branching model. The `main`/`develop`/promotion policy of `cip/rem-app-create` governs **this skills toolkit only**. Never create a `develop` branch in an app repository, retarget its PRs, change its default branch, enforce the toolkit's release cadence or modify its rulesets merely because it uses these skills. Inspect the **app repository's** existing `AGENTS.md`, contribution policy, branch protections and CI; preserve its chosen trunk-based, GitFlow or other workflow. For a new app, suggest a small lightweight workflow (usually short-lived PR branches targeting its default branch), present any changes as optional, and obtain owner approval before changing repository governance.
