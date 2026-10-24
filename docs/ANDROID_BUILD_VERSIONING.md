@@ -19,6 +19,17 @@ This is reusable guidance for Android application repositories using REM-APP-CRE
 6. Read back and validate the **built APK** package, code, name and signing certificate against allocation metadata **before publishing**. Do not trust only Gradle source literals. Never publish a failed verification as installable.
 7. CI signatures must be stable and handled as secrets; follow repository trust boundaries so untrusted PR code cannot access production signing secrets. If PR signing is unsafe, provide a separately labeled non-updatable artifact rather than weakening secret isolation.
 
+## Default in-app build identity (mandatory for toolkit-created apps)
+
+**Every new Android app scaffolded or implemented with the toolkit must display its installed version without an extra user request.** For an existing app, preserve its UI conventions and add a discoverable, non-intrusive entry (prefer **Settings → About / App info**; if there are no settings, a simple **About** item in the overflow/menu). Do not add persistent screen clutter.
+
+- Always show the *installed APK's* human-readable `versionName` and numeric `versionCode` together, e.g. `Version 0.8.12 (209)`. Read the runtime-installed package information / generated BuildConfig metadata corresponding to the **actual variant**, not a hard-coded label or the developer's latest Gradle value.
+- When available, expose an expandable **Build details** area: debug/release variant, source ref/branch, exact built commit (short SHA is acceptable in the UI), PR if applicable, CI run/attempt, and whether validation ran. A missing field should be omitted or explicitly marked unavailable; never fabricate it. Identify a synthetic PR merge build separately from the PR head.
+- Build details must correspond to the *installed* binary, not whichever branch is currently latest in GitHub or dashboard. Inject provenance at build time from verified CI metadata and use the same identity in APK metadata, logs and artifact handoff. Keep CI metadata non-sensitive (never embed tokens, secrets or internal-only URLs).
+- Provide a **Copy build info** action using Android's clipboard API, ideally including app ID, version, code, variant, commit and run identity, so users can paste reproducible bug reports. Respect privacy: no credentials or device identifiers.
+- Include version and code in app-start diagnostic logs / user-exported bug reports when logging exists, while respecting consent and privacy.
+- Test the presentation with deterministic unit/UI tests for normal and missing metadata, and check at least one built APK that runtime labels match its parsed manifest identity. Where appropriate, validate on emulator. Do not claim this is present until it is implemented in the target app.
+
 ## Builds can complete out of order
 
 Allocated code order is **not** completion order. A slower build with a smaller code can finish after a faster build with a larger code. Do not overwrite the 'latest installable' pointer or PR handoff with an older-code APK. If the intended source's APK code is below the user's installed version, request a fresh build of that exact source. Do not recommend uninstall/reinstall without explicit informed consent and a data-backup/migration plan.
