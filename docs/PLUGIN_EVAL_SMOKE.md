@@ -1,30 +1,32 @@
-# Plugin-eval smoke preflight (issue #9)
+# Official plugin-eval benchmark configuration (issue #9)
 
-The official [OpenAI plugin-eval](https://github.com/openai/plugins/tree/main/plugins/plugin-eval) can run live Codex benchmarks, but **this first slice is explicitly a dry-run preflight**. It never invokes a model, does not require credentials, makes no paid API requests, and must not be reported as a real behavior evaluation.
+The pinned official OpenAI plugin-eval revision `0722921d5542fc593105c27bd52630babd8b8c2a` uses **benchmark schemaVersion 2**, `runner.type=codex-cli`, and actual `codex exec` sessions. Its `benchmark --dry-run` **raises an error**; the earlier documentation suggesting this flag was incorrect.
 
-## Manual run
+## Implemented
 
-From GitHub Actions select **Official plugin-eval smoke preflight**, choose `rem-feedback`, and optionally enter the **intended** model for provenance. This field does not configure or invoke Codex. No workflow runs on ordinary pull requests. Permissions are `contents: read` only.
-
-The workflow pins official upstream commit `0722921d5542fc593105c27bd52630babd8b8c2a`, uses Node.js 22, validates the checked-in case specification, calls the official `init-benchmark` and `benchmark --dry-run` commands, and uploads generated benchmark starter configuration, dry-run output and provenance. The generated benchmark configuration is **not** equivalent to our test case specification. Review it before use.
-
-Locally validate the four REM-specific proposed prompts with:
+Generate a deterministic config from four `rem-feedback` smoke cases and fake-GitHub fixtures:
 
 ```sh
 python3 scripts/validate_plugin_eval_smoke.py
+python3 scripts/test_fake_github.py
+python3 scripts/test_plugin_eval_config.py
+python3 scripts/build_plugin_eval_benchmark.py --output /tmp/rem-feedback-benchmark.json --model gpt-5.4-mini
 ```
 
-The case JSON defines activation, near-miss/app-only, duplicate/develop-fix and sensitive-data safety expectations. Validation verifies schema shape only. It does **not** prove agent activation, actual tool calls or outcomes.
+The config has the official `plugin-eval-benchmark` kind, schema 2, a `codex-cli` runner, four prompts, an isolated skill installation, workspace copy, and a Python adapter contract verifier. This is a genuine input **configuration** for the official runner, not a competing runner. The new PR validation tests config structure without invoking Codex. The opt-in smoke workflow produces a configuration artifact and official static analysis rather than an unsupported fake dry run.
 
-## Evidence and non-goals
+## Security and evidence limits
 
-Record `NOT RUN` for live agent behavior, tool traces, GitHub postconditions and observed costs. The dry-run artifact records the toolkit commit, pinned evaluator commit, declared skill and intended model. It must not be used as a passing agent evaluation.
+**Do not run the live command on an unisolated machine or with production GitHub credentials.** The upstream benchmark grants the Codex agent shell execution in a workspace, uses a copied Codex auth configuration when present, and may make network calls unless separately restricted. Prompt instructions saying to use fake GitHub are **not** a security boundary. The JSON-lines fake adapter currently is a callable *local process*, not an injected GitHub connector. Its contract tests cannot prove the agent used it, and the official runner's verifier currently checks only that the adapter itself passes. No actual GitHub agent tool trace policy gate exists yet.
 
-## Next slices before a real live benchmark
+Only after an external network-restricted environment is provisioned, credentials are limited to model access, the agent's real tool traces can be independently checked, and explicit API spending approval is given should you run:
 
-1. Convert the four cases into the official generated benchmark config, after inspecting its actual schema at the pinned revision. Pin prompts, model, reasoning settings and target revision.
-2. Provide a fake GitHub tool layer with fixed issue search results, main/develop commits and mutation traps. Assert *observable* tool traces and final state. Forbid network/public mutations; `contents: read` GitHub Actions permissions alone cannot prevent external calls using other credentials.
-3. Run `codex exec` only in a reviewed sandbox with explicit spending authorization and securely provisioned credentials, never from normal PR validation. Store outcomes, token usage and costs if reported (otherwise `UNKNOWN`).
-4. Compare with/without skill and paraphrases, then calibrate optional judge scoring against deterministic assertions.
+```sh
+node /path/to/openai/plugins/plugins/plugin-eval/scripts/plugin-eval.js benchmark skills/rem-feedback --config /tmp/rem-feedback-benchmark.json --format json
+```
 
-Existing automatic static analysis remains in `.github/workflows/plugin-eval.yml`; existing synthetic trace checks are separate. This deliberately small step does not claim to complete issue #9's full live evaluation goal.
+Note: `workspace.sourcePath` is an absolute path written at generation time. Rebuild config on the same host where running it. This command performs real (potentially paid) model calls, unlike the config generation and static PR tests. This repository **does not automate** that live step.
+
+## Next required slice
+
+Expose fake-GitHub through an agent-restricted tool interface, capture the actual Codex JSONL tool traces, apply strict per-scenario decision/postcondition verifiers, add no-network enforcement and appropriate spending controls. Then enable an explicit manual live test and record token use and observed cost. Until then report `AGENT NOT RUN`, not PASS.
