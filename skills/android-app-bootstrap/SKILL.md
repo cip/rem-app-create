@@ -9,7 +9,8 @@ Use at the beginning of an Android project or when retrofitting agent workflows.
 1. Read the existing README, AGENTS.md, Gradle files, CI pipelines and relevant issues. Preserve app identity, versioning, signing and user data.
 2. Identify business flows, destructive actions, external providers, lifecycle and background work. List observable invariants and known unknowns.
 3. Pick relevant skills: clean architecture, model testing, CI release and agent workflow. Avoid duplicating existing infrastructure.
-4. Propose the smallest independent implementation and executable verification slice. Do not change a repository merely because it was inspected.
-5. Produce a checklist of what actually ran, what is untested, and next risks.
+4. For new Android apps, include a discoverable About/App info screen by default with the installed `versionName` and numeric `versionCode`; add provenance/copy action when CI metadata exists. For existing apps, preserve established navigation and avoid duplicating an existing version view. Follow [in-app build identity](../../docs/ANDROID_BUILD_VERSIONING.md#default-in-app-build-identity-mandatory-for-toolkit-created-apps).
+5. Propose the smallest independent implementation and executable verification slice. Do not change a repository merely because it was inspected.
+6. Produce a checklist of what actually ran, what is untested, and next risks.
 
 Never silently overwrite existing project conventions or claim emulator/device validation without execution.
