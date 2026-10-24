@@ -1,17 +1,11 @@
-name: Official plugin-eval smoke preflight
+name: Official plugin-eval benchmark configuration
 on:
   workflow_dispatch:
     inputs:
-      skill:
-        description: Skill to evaluate
-        required: true
-        type: choice
-        options:
-          - rem-feedback
       model:
-        description: Intended Codex model (metadata only; no paid invocation)
+        description: Intended Codex model (not invoked)
         required: true
-        default: 'not-selected'
+        default: gpt-5.4-mini
         type: string
 permissions:
   contents: read
@@ -21,33 +15,32 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: openai/plugins
+          ref: 0722921d5542fc593105c27bd52630babd8b8c2a
+          path: official-openai-plugins
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Checkout pinned official evaluator
-        run: |
-          git clone --filter=blob:none https://github.com/openai/plugins.git /tmp/openai-plugins
-          git -C /tmp/openai-plugins checkout 0722921d5542fc593105c27bd52630babd8b8c2a
-      - name: Validate smoke scenarios
-        run: python3 scripts/validate_plugin_eval_smoke.py
-      - name: Generate official benchmark starter and dry-run
-        shell: bash
+      - name: Generate and verify official benchmark config
         env:
-          SKILL: ${{ inputs.skill }}
           MODEL: ${{ inputs.model }}
         run: |
           set -euo pipefail
-          CLI=/tmp/openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js
-          python3 scripts/build_plugin_eval_benchmark.py --output plugin-eval-evidence/benchmark.json --model "$MODEL"\n          python3 scripts/test_plugin_eval_config.py\n          node "$CLI" analyze "skills/$SKILL" --format json --output plugin-eval-evidence/static-analysis.json\n          printf "Live Codex benchmark NOT RUN; upstream CLI v2 does not support --dry-run.\\n" > plugin-eval-dry-run.log
-          mkdir -p plugin-eval-evidence
-          cp plugin-eval-dry-run.log plugin-eval-evidence/
-          cp plugin-eval-evidence/benchmark.json plugin-eval-evidence/benchmark-starter.json
-          printf 'status=DRY_RUN_ONLY\nrepo_commit=%s\nupstream_commit=%s\nskill=%s\nmodel=%s\nlive_agent=NOT_RUN\nactual_tool_traces=NOT_RUN\ncost=NOT_MEASURED\n' \
-            "$GITHUB_SHA" '0722921d5542fc593105c27bd52630babd8b8c2a' "$SKILL" "$MODEL" > plugin-eval-evidence/provenance.txt
+          mkdir -p reports/plugin-eval-smoke
+          python3 scripts/validate_plugin_eval_smoke.py
+          python3 scripts/test_fake_github.py
+          python3 scripts/test_plugin_eval_config.py
+          python3 scripts/build_plugin_eval_benchmark.py --output reports/plugin-eval-smoke/benchmark.json --model "$MODEL"
+          node official-openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js analyze skills/rem-feedback --format json --output reports/plugin-eval-smoke/static-analysis.json
+          printf 'status=CONFIG_ONLY\nagent_execution=NOT_RUN\nactual_tool_traces=NOT_RUN\ncost=NOT_MEASURED\ntoolkit_commit=%s\nevaluator_revision=%s\n' "$GITHUB_SHA" 0722921d5542fc593105c27bd52630babd8b8c2a > reports/plugin-eval-smoke/provenance.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: official-plugin-eval-smoke-preflight
-          path: |
-            plugin-eval-evidence/
+          name: official-plugin-eval-benchmark-config
+          path: reports/plugin-eval-smoke/
           if-no-files-found: warn
