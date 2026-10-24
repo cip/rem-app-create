@@ -89,6 +89,11 @@ Browse [skills/](skills/), open the relevant `SKILL.md`, and copy or reference i
 | [android-model-testing](skills/android-model-testing/SKILL.md) | Reproduce state/event sequences, timing, failures and invariants. |
 | [android-ci-release](skills/android-ci-release/SKILL.md) | Trace CI evidence, app IDs, signing, versions and installable APKs. |
 | [android-agent-workflow](skills/android-agent-workflow/SKILL.md) | Structure issue → branch → tests → PR → review → merge approval. |
+| [rem-feedback](skills/rem-feedback/SKILL.md) | Turn user complaints into privacy-safe, deduplicated toolkit issues with consent. |
+
+### Report a problem with the skills
+
+If an app built using REM-APP-CREATE fails, or the guidance is confusing, tell your ChatGPT agent what happened and ask it to **use the [rem-feedback](skills/rem-feedback/SKILL.md) skill**. It will distinguish app-specific issues from reusable toolkit problems, check for duplicates, sanitize information for a **public** issue, and—after your approval and if GitHub write access is available—create an issue in [this repository](https://github.com/cip/rem-app-create/issues). Otherwise, it can prepare a report for the [new issue form](https://github.com/cip/rem-app-create/issues/new). No IDE required to report a problem.
 
 ## Principles
 
@@ -101,7 +106,7 @@ Browse [skills/](skills/), open the relevant `SKILL.md`, and copy or reference i
 
 ## Project status and validation
 
-This is an **early starter release** with five instructional skills and a structural validator. Validation runs on GitHub Actions in [Validate skills](.github/workflows/validate-skills.yml), and can be run locally:
+This is an **early starter release** with six instructional skills and a structural validator. Validation runs on GitHub Actions in [Validate skills](.github/workflows/validate-skills.yml), and can be run locally:
 
 ```sh
 python3 scripts/validate_skills.py
