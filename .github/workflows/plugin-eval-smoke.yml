@@ -1,0 +1,54 @@
+name: Official plugin-eval smoke preflight
+on:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: Skill to evaluate
+        required: true
+        type: choice
+        options:
+          - rem-feedback
+      model:
+        description: Intended Codex model (metadata only; no paid invocation)
+        required: true
+        default: 'not-selected'
+        type: string
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checkout pinned official evaluator
+        run: |
+          git clone --filter=blob:none https://github.com/openai/plugins.git /tmp/openai-plugins
+          git -C /tmp/openai-plugins checkout 0722921d5542fc593105c27bd52630babd8b8c2a
+      - name: Validate smoke scenarios
+        run: python3 scripts/validate_plugin_eval_smoke.py
+      - name: Generate official benchmark starter and dry-run
+        shell: bash
+        env:
+          SKILL: ${{ inputs.skill }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          set -euo pipefail
+          CLI=/tmp/openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js
+          node "$CLI" init-benchmark "skills/$SKILL"
+          node "$CLI" benchmark "skills/$SKILL" --dry-run | tee plugin-eval-dry-run.log
+          mkdir -p plugin-eval-evidence
+          cp plugin-eval-dry-run.log plugin-eval-evidence/
+          cp .plugin-eval/benchmark.json plugin-eval-evidence/benchmark-starter.json
+          printf 'status=DRY_RUN_ONLY\nrepo_commit=%s\nupstream_commit=%s\nskill=%s\nmodel=%s\nlive_agent=NOT_RUN\nactual_tool_traces=NOT_RUN\ncost=NOT_MEASURED\n' \
+            "$GITHUB_SHA" '0722921d5542fc593105c27bd52630babd8b8c2a' "$SKILL" "$MODEL" > plugin-eval-evidence/provenance.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official-plugin-eval-smoke-preflight
+          path: |
+            plugin-eval-evidence/
+          if-no-files-found: warn
