@@ -8,7 +8,7 @@ Use when creating, revising or debugging an Agent Skill. Keep REM-APP-CREATE too
 
 ## Prefer official evaluation tools
 
-- For Codex environments, prefer OpenAI's official [plugin-eval](https://github.com/openai/plugins/tree/main/plugins/plugin-eval): `analyze` for static review, `init-benchmark` and `benchmark` for real Codex runs, `compare` for before/after comparisons. It is a separate optional tool, not bundled or automatically installed here.
+- For Codex environments, prefer OpenAI's official [plugin-eval](https://github.com/openai/plugins/tree/main/plugins/plugin-eval): `analyze` for static review, `init-benchmark` and `benchmark` for real Codex runs, `compare` for before/after comparisons. The manually dispatched `Official skill evaluation` workflow performs pinned, **static** `analyze` runs without credentials; see `docs/PLUGIN_EVAL.md`. The CLI remains external; live `benchmark` is not enabled in CI.
 - When using Claude, Anthropic's official [skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator) supports skill evaluations and benchmarks.
 - Do not adopt arbitrary community GitHub harnesses without explicit review. Vendor tools may be unavailable or platform-specific. Do not silently substitute static checks for agent evaluations.
 
