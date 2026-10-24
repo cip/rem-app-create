@@ -24,6 +24,17 @@ You can also paste the link **with an app idea**, such as:
 
 Reading a public GitHub URL is **not** the same as installing executable skills, connecting GitHub for write access, or provisioning an Android build system. Agents must be candid about which tools they can actually access. No IDE is needed to discuss or plan an app; GitHub Actions can build APKs once configured.
 
+## Stable vs development version
+
+| Purpose | ChatGPT link |
+| --- | --- |
+| Stable default (`main`) | https://github.com/cip/rem-app-create |
+| Experimental (`develop`) | https://github.com/cip/rem-app-create/tree/develop |
+
+For testing development skills in a fresh ChatGPT conversation, paste the `develop` URL and say: **"Read the README, CHATGPT_START_HERE.md and relevant SKILL.md files from develop, and tell me which commit you used."** A URL by itself does not guarantee automatic skill loading or branch selection. `main` is intentionally not updated on every experimental merge.
+
+For contributor workflow and promotion rules see [Branching and releases](docs/BRANCHING_AND_RELEASES.md). Changes flow through short-lived branches into `develop` and reach `main` only after review and verification.
+
 ## What can I do with it?
 
 Imagine building a **family photo-sharing Android app**. A person picks photos in the Android Gallery and shares them to the app. The app publishes a shareable collection backed by Nextcloud **without ever moving or deleting the originals**.
