@@ -19,6 +19,7 @@ docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
   --workdir /work rem-plugin-eval-offline:local sh -eu -c '
     cp -a /src/. /tmp/workspace
     cd /tmp/workspace
+    chmod +x scripts/offline_codex_stub.py
     python3 scripts/build_plugin_eval_benchmark.py --output /tmp/benchmark.json --workspace /tmp/workspace
     PLUGIN_EVAL_CODEX_EXECUTABLE=/tmp/workspace/scripts/offline_codex_stub.py \
       node /upstream/plugins/plugin-eval/scripts/plugin-eval.js benchmark skills/rem-feedback \
@@ -30,6 +31,10 @@ from pathlib import Path
 p = json.loads(Path("/results/benchmark-run.json").read_text())
 assert len(p["scenarios"]) == 4
 assert all(s["status"] == "completed" for s in p["scenarios"]), p["summary"]
+for scenario in p["scenarios"]:
+    source = Path(scenario["rawEventLogPath"])
+    assert source.is_file() and source.stat().st_size > 0
+    (Path("/results") / (scenario["id"] + ".codex.jsonl")).write_bytes(source.read_bytes())
 print("OFFLINE STUB: official runner processed four synthetic scenarios (NO AGENT)")
 PY
     printf "OFFLINE_STUB_ONLY=1\\nMODEL_EXECUTED=NO\\nNETWORK=DISABLED\\n" > /results/provenance.txt
