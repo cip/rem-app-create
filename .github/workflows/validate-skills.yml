@@ -52,3 +52,37 @@ jobs:
           name: plugin-eval-smoke-preflight
           path: reports/plugin-eval-smoke/
           if-no-files-found: warn
+
+  plugin-eval-offline-integration:
+    name: Official runner integration (offline stub, no model)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: openai/plugins
+          ref: 0722921d5542fc593105c27bd52630babd8b8c2a
+          path: official-openai-plugins
+          persist-credentials: false
+      - name: Test official runner inside disconnected Docker
+        env:
+          OPENAI_PLUGIN_EVAL_DIR: ${{ github.workspace }}/official-openai-plugins
+        run: bash scripts/run_offline_plugin_eval.sh
+      - name: Validate exported synthetic traces
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/toolkit-feedback.codex.jsonl --scenario toolkit-feedback
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/app-only.codex.jsonl --scenario app-only
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/already-fixed.codex.jsonl --scenario already-fixed
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/sensitive-data.codex.jsonl --scenario sensitive-data
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official-plugin-eval-offline-stub
+          path: reports/plugin-eval-offline/
+          if-no-files-found: warn
