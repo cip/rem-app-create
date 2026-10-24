@@ -1,0 +1,49 @@
+name: OpenAI Plugin Eval (manual static analysis)
+on:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: Skill directory name to analyze
+        required: true
+        type: choice
+        options:
+          - skill-tester
+          - rem-feedback
+          - android-app-bootstrap
+          - android-clean-architecture
+          - android-model-testing
+          - android-ci-release
+          - android-agent-workflow
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout toolkit
+        uses: actions/checkout@v4
+      - name: Checkout OpenAI official plugins (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: openai/plugins
+          ref: 0722921d5542fc593105c27bd52630babd8b8c2a
+          path: upstream-openai-plugins
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Analyze selected skill
+        env:
+          TARGET_SKILL: ${{ inputs.skill }}
+        run: |
+          mkdir -p plugin-eval-results
+          node upstream-openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js analyze "skills/$TARGET_SKILL" --format markdown > plugin-eval-results/report.md
+          cat plugin-eval-results/report.md
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-eval-${{ inputs.skill }}
+          path: plugin-eval-results/
+          if-no-files-found: warn
