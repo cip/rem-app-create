@@ -6,6 +6,10 @@ Prefer major-vendor evaluation frameworks instead of cloning a community runner.
 
 REM needs additional domain-specific assertions for GitHub issue deduplication, develop/main inspection, permissions, merge consent, Android CI outcomes and APK evidence. The first iteration demonstrates these as deterministic **synthetic event trace** tests.
 
+## Official OpenAI static integration
+
+The optional, manually dispatched GitHub Actions workflow [Official skill evaluation](../.github/workflows/plugin-eval.yml) uses a pinned OpenAI plugin-eval checkout to analyze selected skills and uploads JSON reports. This is **static analysis**, not an executed agent benchmark. Setup, exact upstream commands, provenance and live-evaluation restrictions are in [PLUGIN_EVAL.md](PLUGIN_EVAL.md).
+
 ## Run locally
 
 ```sh
@@ -21,6 +25,7 @@ Both commands require only Python 3. The second reads `tests/skill_scenarios/*.j
 | --- | --- | --- |
 | SKILL.md structure | Implemented | Structure accepted |
 | Synthetic policy trace fixtures | Implemented | Hardcoded modeled traces match invariants |
+| Official plugin-eval static scan | Manual workflow implemented; not a live benchmark | Static findings only |
 | Real agent activation and execution | Not implemented | Nothing, until recorded run exists |
 | Tool mocking/state machine integration | Not implemented | Nothing |
 | Real GitHub / Android CI / APK E2E | Not implemented | Nothing |
