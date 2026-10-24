@@ -20,3 +20,15 @@ The adapter accepts one JSON request per line on stdin and returns one JSON resp
 - Only then enable explicit, authorized live Codex runs; record the model, costs, provider status and failures honestly.
 
 The normal PR CI runs **only** this offline adapter's contract tests. See `docs/PLUGIN_EVAL_SMOKE.md`.
+
+## Codex JSONL trace gate
+
+`scripts/verify_codex_trace.py` now inspects actual recorded `codex exec --json` streams **after** a benchmark (it does not launch one):
+
+```sh
+python3 scripts/verify_codex_trace.py /path/to/codex.stdout.jsonl --scenario already-fixed --output /tmp/trace-gate.json
+```
+
+It fails closed if no completed turn, no observed invocation of the correct fake scenario, a recognized external GitHub/network/mutation command, or an unrecognized external tool call is observed. `python3 scripts/test_codex_trace.py` exercises the checker against fabricated Codex event shapes in normal CI.
+
+**Important limitations:** This is a minimum-evidence diagnostic, **not a security boundary or a PASS on agent policy compliance**. Regex inspection can miss escaped, indirect, or unrecognized network operations; Codex events may evolve; observing the adapter command does not prove correct tool sequencing, deduplication, redaction or decisions. The runner still needs independently enforced network isolation and a restricted tool surface before *any* live benchmark. Never interpret `OBSERVED_MINIMUM` as a safety certificate.
