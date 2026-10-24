@@ -6,6 +6,35 @@
 
 REM-APP-CREATE is an open-source collection of **Agent Skills**, not an Android app or a one-click app generator. It gives supported coding agents repeatable engineering practices learned from real-world Android projects.
 
+## Start directly in ChatGPT (no IDE required)
+
+**The simplest way:** paste this URL into a ChatGPT conversation:
+
+```text
+https://github.com/cip/rem-app-create
+```
+
+You can also paste the link **with an app idea**, such as:
+
+> Use https://github.com/cip/rem-app-create to help me build an Android app that shares family photos using Nextcloud without moving or deleting the original images.
+
+**Just the link?** Start by explaining what the toolkit can do, offering example Android app ideas, and asking what the user wants to create. **Link plus an app idea?** Start with a small feature plan and a step-by-step GitHub account/repository setup (including Public versus Private), then use the appropriate skills.
+
+**[ChatGPT start-here instructions and GitHub setup →](CHATGPT_START_HERE.md)**
+
+Reading a public GitHub URL is **not** the same as installing executable skills, connecting GitHub for write access, or provisioning an Android build system. Agents must be candid about which tools they can actually access. No IDE is needed to discuss or plan an app; GitHub Actions can build APKs once configured.
+
+## Stable vs development version
+
+| Purpose | ChatGPT link |
+| --- | --- |
+| Stable default (`main`) | https://github.com/cip/rem-app-create |
+| Experimental (`develop`) | https://github.com/cip/rem-app-create/tree/develop |
+
+For testing development skills in a fresh ChatGPT conversation, paste the `develop` URL and say: **"Read the README, CHATGPT_START_HERE.md and relevant SKILL.md files from develop, and tell me which commit you used."** A URL by itself does not guarantee automatic skill loading or branch selection. `main` is intentionally not updated on every experimental merge.
+
+For contributor workflow and promotion rules see [Branching and releases](docs/BRANCHING_AND_RELEASES.md). Changes flow through short-lived branches into `develop` and reach `main` only after review and verification.
+
 ## What can I do with it?
 
 Imagine building a **family photo-sharing Android app**. A person picks photos in the Android Gallery and shares them to the app. The app publishes a shareable collection backed by Nextcloud **without ever moving or deleting the originals**.
@@ -26,7 +55,7 @@ The agent should use the skills to:
 
 **Reality check:** These are instructions for an AI coding agent, not a guarantee that one prompt produces a finished app. The agent needs access to the target project and its build environment. Existing skills provide guidance; complete Android templates, sample apps and emulator pipelines are still being developed.
 
-## Install the skills
+## Optional: install skills in a coding agent
 
 ### Option A — Install from this public GitHub repository
 
@@ -48,7 +77,7 @@ You **do not need a GitHub invitation or access token to read this public reposi
 
 Browse [skills/](skills/), open the relevant `SKILL.md`, and copy or reference it using the documented custom-skill mechanism of your coding agent. For agents supporting the Agent Skills standard, keep the individual `SKILL.md` directories intact.
 
-## Set up a real Android project on GitHub
+## Set up a real Android project on GitHub (CLI-based alternative)
 
 1. Create or open your **Android application repository** (separate from this skills repository).
 2. Clone that Android repository locally and open it in your preferred agent-enabled development environment.
@@ -71,6 +100,11 @@ Browse [skills/](skills/), open the relevant `SKILL.md`, and copy or reference i
 | [android-model-testing](skills/android-model-testing/SKILL.md) | Reproduce state/event sequences, timing, failures and invariants. |
 | [android-ci-release](skills/android-ci-release/SKILL.md) | Trace CI evidence, app IDs, signing, versions and installable APKs. |
 | [android-agent-workflow](skills/android-agent-workflow/SKILL.md) | Structure issue → branch → tests → PR → review → merge approval. |
+| [rem-feedback](skills/rem-feedback/SKILL.md) | Turn user complaints into privacy-safe, deduplicated toolkit issues with consent. |
+
+### Report a problem with the skills
+
+If an app built using REM-APP-CREATE fails, or the guidance is confusing, tell your ChatGPT agent what happened and ask it to **use the [rem-feedback](skills/rem-feedback/SKILL.md) skill**. It will distinguish app-specific issues from reusable toolkit problems, check for duplicates, sanitize information for a **public** issue, and—after your approval and if GitHub write access is available—create an issue in [this repository](https://github.com/cip/rem-app-create/issues). Otherwise, it can prepare a report for the [new issue form](https://github.com/cip/rem-app-create/issues/new). No IDE required to report a problem.
 
 ## Principles
 
@@ -83,7 +117,7 @@ Browse [skills/](skills/), open the relevant `SKILL.md`, and copy or reference i
 
 ## Project status and validation
 
-This is an **early starter release** with five instructional skills and a structural validator. Validation runs on GitHub Actions in [Validate skills](.github/workflows/validate-skills.yml), and can be run locally:
+This is an **early starter release** with six instructional skills and a structural validator. Validation runs on GitHub Actions in [Validate skills](.github/workflows/validate-skills.yml), and can be run locally:
 
 ```sh
 python3 scripts/validate_skills.py
