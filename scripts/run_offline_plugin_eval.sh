@@ -11,6 +11,7 @@ test "$(git -C "$OPENAI_PLUGIN_EVAL_DIR" rev-parse HEAD)" = "0722921d5542fc59310
 mkdir -p reports/plugin-eval-offline
 docker build -q -f evals/rem-feedback/Dockerfile.offline -t rem-plugin-eval-offline:local . >/dev/null
 docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+  --user "$(id -u):$(id -g)" \
   --pids-limit 128 --memory 768m --cpus 2 \
   --read-only --tmpfs /tmp:rw,nosuid,nodev,exec,size=256m \
   --mount "type=bind,source=$(pwd),target=/src,readonly" \
