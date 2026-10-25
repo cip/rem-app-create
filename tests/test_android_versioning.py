@@ -80,11 +80,24 @@ class VersioningTests(unittest.TestCase):
         self.assertEqual(successor, cancelled_code + 1)
 
     def test_out_of_order_completion_and_unverified_build(self):
-        latest = dict(applicationId="example.debug", versionCode=1002, verified=True)
-        self.assertFalse(may_replace_latest(latest, dict(applicationId="example.debug", versionCode=1001, verified=True)))
-        self.assertFalse(may_replace_latest(latest, dict(applicationId="example.debug", versionCode=1003, verified=False)))
-        self.assertTrue(may_replace_latest(latest, dict(applicationId="example.debug", versionCode=1003, verified=True)))
-        self.assertFalse(may_replace_latest(latest, dict(applicationId="other.app", versionCode=9999, verified=True)))
+        latest = dict(applicationId="example.debug", signingFingerprint="ABC",
+                      channel="debug", versionCode=1002, verified=True)
+        def candidate(**changes):
+            return {**latest, "versionCode": 1003, **changes}
+        self.assertFalse(may_replace_latest(latest, candidate(versionCode=1001)))
+        self.assertFalse(may_replace_latest(latest, candidate(verified=False)))
+        self.assertTrue(may_replace_latest(latest, candidate()))
+        self.assertFalse(may_replace_latest(latest, candidate(applicationId="other.app")))
+        self.assertFalse(may_replace_latest(latest, candidate(signingFingerprint="XYZ")))
+        self.assertFalse(may_replace_latest(latest, candidate(channel="release")))
+        self.assertFalse(may_replace_latest(latest, candidate(versionCode=1002)))
+        self.assertFalse(may_replace_latest(latest, candidate(versionCode=True)))
+        self.assertFalse(may_replace_latest(latest, candidate(versionCode=MAX_VERSION_CODE + 1)))
+        self.assertFalse(may_replace_latest(latest, candidate(signingFingerprint="")))
+        self.assertFalse(may_replace_latest(latest, {"verified": True}))
+        self.assertFalse(may_replace_latest({}, candidate()))
+        self.assertTrue(may_replace_latest(None, candidate()))
+        self.assertFalse(may_replace_latest(None, candidate(verified=False)))
 
     def test_built_apk_metadata_must_match_all_fields(self):
         expected = dict(applicationId="app.debug", versionCode=1001, versionName="0.8.12", signingFingerprint="ABC")
