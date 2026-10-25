@@ -61,11 +61,26 @@ def runtime_version_label(installed_name, installed_code):
 
 
 def may_replace_latest(existing, candidate):
-    """Never replace a higher-code same-channel pointer after out-of-order completion."""
-    if not candidate.get("verified", False):
+    """Only promote a verified APK within the same installable distribution channel.
+
+    Callers must serialize pointer updates or use conditional writes: this predicate
+    alone does not make concurrent publication atomic.
+    """
+    required = ("applicationId", "signingFingerprint", "channel", "versionCode")
+    if not isinstance(candidate, dict) or candidate.get("verified") is not True:
         return False
-    if not existing:
+    if any(not candidate.get(key) for key in required[:-1]):
+        return False
+    code = candidate.get("versionCode")
+    if type(code) is not int or not 1 <= code <= MAX_VERSION_CODE:
+        return False
+    if existing is None:
         return True
-    if existing["applicationId"] != candidate["applicationId"]:
+    if not isinstance(existing, dict):
         return False
-    return candidate["versionCode"] > existing["versionCode"]
+    if any(existing.get(key) != candidate[key] for key in required[:-1]):
+        return False
+    previous = existing.get("versionCode")
+    if type(previous) is not int or not 1 <= previous <= MAX_VERSION_CODE:
+        return False
+    return code > previous
