@@ -3,6 +3,7 @@ plugins { id 'com.android.application' }
 android {
     namespace 'org.remappcreate.reference'
     compileSdk 35
+    buildFeatures { buildConfig true }
 
     defaultConfig {
         applicationId 'org.remappcreate.reference'
