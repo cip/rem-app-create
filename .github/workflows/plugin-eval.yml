@@ -1,0 +1,64 @@
+name: Official skill evaluation
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: Skill to analyze (or all)
+        required: true
+        type: choice
+        options:
+          - all
+          - rem-feedback
+          - skill-tester
+          - android-app-bootstrap
+          - android-clean-architecture
+          - android-model-testing
+          - android-ci-release
+          - android-agent-workflow
+jobs:
+  static-evaluation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout REM toolkit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout official OpenAI plugin-eval at reviewed revision
+        uses: actions/checkout@v4
+        with:
+          repository: openai/plugins
+          ref: 0722921d5542fc593105c27bd52630babd8b8c2a
+          path: official-openai-plugins
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Evaluate selected skills
+        env:
+          SELECTED_SKILL: ${{ inputs.skill || 'all' }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports/plugin-eval
+          node official-openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js --help > reports/plugin-eval/cli-help.txt
+          if [ "$SELECTED_SKILL" = all ]; then
+            for skill in skills/*; do
+              [ -f "$skill/SKILL.md" ] || continue
+              name="${skill##*/}"
+              node official-openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js analyze "$skill" --format json --output "reports/plugin-eval/${name}.json"
+            done
+          else
+            test -f "skills/${SELECTED_SKILL}/SKILL.md"
+            node official-openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js analyze "skills/${SELECTED_SKILL}" --format json --output "reports/plugin-eval/${SELECTED_SKILL}.json"
+          fi
+          printf 'Toolkit commit: %s\nOpenAI plugin-eval commit: %s\nMode: STATIC ONLY\n' "$GITHUB_SHA" '0722921d5542fc593105c27bd52630babd8b8c2a' > reports/plugin-eval/provenance.txt
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-plugin-eval-static
+          path: reports/plugin-eval/
+          if-no-files-found: warn

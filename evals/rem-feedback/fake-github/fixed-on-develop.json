@@ -1,0 +1,31 @@
+{
+  "issues": {
+    "open": [],
+    "closed": [
+      {
+        "number": 42,
+        "title": "CI bootstrap SDK instructions",
+        "state": "closed"
+      }
+    ]
+  },
+  "branches": {
+    "main": {
+      "sha": "fixture-main",
+      "has_fix": false
+    },
+    "develop": {
+      "sha": "fixture-develop",
+      "has_fix": true,
+      "fix_pr": 43
+    }
+  },
+  "pull_requests": [
+    {
+      "number": 43,
+      "state": "merged",
+      "base": "develop",
+      "title": "Fix CI bootstrap guidance"
+    }
+  ]
+}

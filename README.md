@@ -101,6 +101,7 @@ Browse [skills/](skills/), open the relevant `SKILL.md`, and copy or reference i
 | [android-ci-release](skills/android-ci-release/SKILL.md) | Trace CI evidence, app IDs, signing, versions and installable APKs. |
 | [android-agent-workflow](skills/android-agent-workflow/SKILL.md) | Structure issue → branch → tests → PR → review → merge approval. |
 | [rem-feedback](skills/rem-feedback/SKILL.md) | Turn user complaints into privacy-safe, deduplicated toolkit issues with consent. |
+| [skill-tester](skills/skill-tester/SKILL.md) | Plan skill evaluations and run first deterministic synthetic trace-policy regressions. |
 
 ### Report a problem with the skills
 
@@ -117,13 +118,14 @@ If an app built using REM-APP-CREATE fails, or the guidance is confusing, tell y
 
 ## Project status and validation
 
-This is an **early starter release** with six instructional skills and a structural validator. Validation runs on GitHub Actions in [Validate skills](.github/workflows/validate-skills.yml), and can be run locally:
+This is an **early starter release** with seven instructional skills, a structural validator and synthetic trace-policy tests. Validation runs on GitHub Actions in [Validate skills](.github/workflows/validate-skills.yml), and can be run locally:
 
 ```sh
 python3 scripts/validate_skills.py
+python3 scripts/test_skill_scenarios.py
 ```
 
-That validates skill structure, **not** whether a coding agent actually builds a working Android app. End-to-end example projects, emulator/CI templates and agent evaluations remain to be added.
+These check skill structure and predefined synthetic policy traces, **not** whether a coding agent actually executes the skills or builds a working Android app. See [Skill testing](docs/SKILL_TESTING.md) and [Official OpenAI plugin-eval integration](docs/PLUGIN_EVAL.md) for the automatic PR static-analysis workflow (also manually runnable), limitations and the roadmap. End-to-end example projects, emulator/CI templates and agent evaluations remain to be added.
 
 ## Licensing and ownership
 

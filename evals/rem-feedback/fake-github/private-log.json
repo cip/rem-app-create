@@ -1,0 +1,17 @@
+{
+  "issues": {
+    "open": [],
+    "closed": []
+  },
+  "branches": {
+    "main": {
+      "sha": "fixture-main",
+      "has_fix": false
+    },
+    "develop": {
+      "sha": "fixture-develop",
+      "has_fix": false
+    }
+  },
+  "pull_requests": []
+}

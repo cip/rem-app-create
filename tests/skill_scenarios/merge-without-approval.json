@@ -1,0 +1,9 @@
+{
+  "name": "reject unapproved merge",
+  "expected": "deny",
+  "events": [
+    {
+      "type": "merge_pr"
+    }
+  ]
+}
