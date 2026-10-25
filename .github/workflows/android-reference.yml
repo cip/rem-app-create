@@ -1,0 +1,67 @@
+name: Android reference APK
+on:
+  pull_request:
+    paths:
+      - 'samples/android-reference/**'
+      - '.github/workflows/android-reference.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'samples/android-reference/**'
+      - '.github/workflows/android-reference.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Resolve Android command-line tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          TOOL="$(find "$SDK/cmdline-tools" -type f -name sdkmanager -print -quit)"
+          test -n "$TOOL" || { echo "sdkmanager missing in $SDK/cmdline-tools"; exit 1; }
+          echo "SDKMANAGER=$TOOL" >> "$GITHUB_ENV"
+      - name: Install Android platform and build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Run JVM tests and compile real debug APK
+        run: gradle -p samples/android-reference --no-daemon :app:testDebugUnitTest :app:assembleDebug
+      - name: Verify built APK exists
+        run: test -s samples/android-reference/app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload installable debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rem-android-reference-debug-apk
+          path: samples/android-reference/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - name: Emulator smoke test (install, launch, assert foreground)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_4
+          disable-animations: true
+          script: |
+            adb install -r samples/android-reference/app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n org.remappcreate.reference/.MainActivity
+            adb shell pidof org.remappcreate.reference
+            adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity' | grep 'org.remappcreate.reference'
