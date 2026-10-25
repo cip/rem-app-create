@@ -11,6 +11,7 @@ Use at the beginning of an Android project or when retrofitting agent workflows.
 3. Pick relevant skills: clean architecture, model testing, CI release and agent workflow. Avoid duplicating existing infrastructure.
 4. For new Android apps, include a discoverable About/App info screen by default with the installed `versionName` and numeric `versionCode`; add provenance/copy action when CI metadata exists. For existing apps, preserve established navigation and avoid duplicating an existing version view. Follow [in-app build identity](../../docs/ANDROID_BUILD_VERSIONING.md#default-in-app-build-identity-mandatory-for-toolkit-created-apps).
 5. Propose the smallest independent implementation and executable verification slice. Do not change a repository merely because it was inspected.
+   For a newly bootstrapped Android app, verify the **first actual GitHub Actions run** before declaring bootstrap complete. If Android SDK setup, JVM tests or APK assembly fails, inspect the failing job's logs, fix the specific cause, push again and verify the new run. Do not treat committed workflow YAML as a working build. In particular, avoid obsolete Android SDK package `tools`; verify where `sdkmanager` is installed rather than assuming it is on `PATH`.
 6. Produce a checklist of what actually ran, what is untested, and next risks.
 
 Never silently overwrite existing project conventions or claim emulator/device validation without execution.
