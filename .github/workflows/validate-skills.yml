@@ -18,3 +18,77 @@ jobs:
         run: python3 scripts/test_skill_scenarios.py
       - name: Test Android versioning contracts
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - run: python3 scripts/validate_plugin_eval_smoke.py
+      - run: python3 scripts/test_fake_github.py
+      - run: python3 scripts/test_plugin_eval_config.py
+      - run: python3 scripts/test_codex_trace.py
+
+  plugin-eval-smoke-preflight:
+    name: Plugin-eval smoke preflight (no paid agent calls)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: openai/plugins
+          ref: 0722921d5542fc593105c27bd52630babd8b8c2a
+          path: official-openai-plugins
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate fixture contract
+        run: python3 scripts/validate_plugin_eval_smoke.py
+      - name: Official plugin-eval smoke preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports/plugin-eval-smoke
+          CLI=official-openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js
+          node "$CLI" --help > reports/plugin-eval-smoke/cli-help.txt
+          node "$CLI" analyze skills/rem-feedback --format json --output reports/plugin-eval-smoke/static-analysis.json
+          printf 'status=STATIC_PREFLIGHT_ONLY\nagent_behavior=NOT_RUN\nbenchmark=NOT_RUN\ntool_traces=NOT_RUN\ncost=NOT_MEASURED\ntoolkit_commit=%s\nevaluator_revision=%s\n' "$GITHUB_SHA" '0722921d5542fc593105c27bd52630babd8b8c2a' > reports/plugin-eval-smoke/provenance.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: plugin-eval-smoke-preflight
+          path: reports/plugin-eval-smoke/
+          if-no-files-found: warn
+
+  plugin-eval-offline-integration:
+    name: Official runner integration (offline stub, no model)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: openai/plugins
+          ref: 0722921d5542fc593105c27bd52630babd8b8c2a
+          path: official-openai-plugins
+          persist-credentials: false
+      - name: Test official runner inside disconnected Docker
+        env:
+          OPENAI_PLUGIN_EVAL_DIR: ${{ github.workspace }}/official-openai-plugins
+        run: bash scripts/run_offline_plugin_eval.sh
+      - name: Validate exported synthetic traces
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/toolkit-feedback.codex.jsonl --scenario toolkit-feedback
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/app-only.codex.jsonl --scenario app-only
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/already-fixed.codex.jsonl --scenario already-fixed
+          python3 scripts/verify_codex_trace.py reports/plugin-eval-offline/sensitive-data.codex.jsonl --scenario sensitive-data
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official-plugin-eval-offline-stub
+          path: reports/plugin-eval-offline/
+          if-no-files-found: warn

@@ -1,0 +1,46 @@
+name: Official plugin-eval benchmark configuration
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Intended Codex model (not invoked)
+        required: true
+        default: gpt-5.4-mini
+        type: string
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: openai/plugins
+          ref: 0722921d5542fc593105c27bd52630babd8b8c2a
+          path: official-openai-plugins
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate and verify official benchmark config
+        env:
+          MODEL: ${{ inputs.model }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports/plugin-eval-smoke
+          python3 scripts/validate_plugin_eval_smoke.py
+          python3 scripts/test_fake_github.py
+          python3 scripts/test_plugin_eval_config.py
+          python3 scripts/build_plugin_eval_benchmark.py --output reports/plugin-eval-smoke/benchmark.json --model "$MODEL"
+          node official-openai-plugins/plugins/plugin-eval/scripts/plugin-eval.js analyze skills/rem-feedback --format json --output reports/plugin-eval-smoke/static-analysis.json
+          printf 'status=CONFIG_ONLY\nagent_execution=NOT_RUN\nactual_tool_traces=NOT_RUN\ncost=NOT_MEASURED\ntoolkit_commit=%s\nevaluator_revision=%s\n' "$GITHUB_SHA" 0722921d5542fc593105c27bd52630babd8b8c2a > reports/plugin-eval-smoke/provenance.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official-plugin-eval-benchmark-config
+          path: reports/plugin-eval-smoke/
+          if-no-files-found: warn
