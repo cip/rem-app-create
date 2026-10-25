@@ -13,6 +13,8 @@ description: Set up traceable Android CI and safe APK versioning, testing and re
 7. Provide direct links to exact CI run and APK where available. Report status from queued/start through APK-ready and completion.
 8. Quick/rebuild modes may skip tests only if labeled explicitly unverified. Real paid LLM/provider validation is opt-in.
 9. Keep PR checks, signed releases, artifacts and secrets separate; never commit credentials.
+10. For a new Android CI workflow, use PR events for feature-branch validation and limit push-triggered builds to the designated stable branch (typically `main`); avoid combining PR events with all-branch push events, which produces duplicate builds. Adapt to existing repository policy.
+11. Treat the first CI run as an executable bootstrap acceptance test: inspect exact workflow/job logs, verify Android SDK setup without the obsolete `tools` package or assumed `sdkmanager` PATH, run JVM tests and assemble the APK, confirm the APK file exists and the upload-artifact step succeeded. On failure, change the offending configuration and re-check a fresh run. Distinguish explicitly: source committed, CI queued/running, tests passed, APK assembled, APK artifact available. Never claim the APK is downloadable solely because assembly was requested.
 
 Model-check concurrent allocation, cancellation, retries, counter corruption and out-of-order completion; separately validate signed in-place Android updates preserving data on emulator/device. Do not claim model/unit tests prove installability.
 
